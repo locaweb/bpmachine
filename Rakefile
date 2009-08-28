@@ -5,8 +5,8 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "bpmachine"
-    gem.summary = %Q{TODO: one-line summary of your gem}
-    gem.description = %Q{TODO: longer description of your gem}
+    gem.summary = %Q{Business Process execution engine, with resume support on failures.}
+    gem.description = %Q{Includes a DSL for business process specification. The process state is persistent, which allows it to be be resumed if an error occurs.}
     gem.email = "fabio.kung@gmail.com"
     gem.homepage = "http://github.com/fabiokung/bpmachine"
     gem.authors = ["fabiokung"]
