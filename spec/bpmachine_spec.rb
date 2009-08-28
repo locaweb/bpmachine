@@ -51,4 +51,15 @@ describe "the DSL for business process" do
         "Process uninstall requires object to have status deactivated, but it is activated")
   end
   
+  it "should be case insensitive with status" do
+    machine = Machine.new
+    machine.status = "DEACTIVATED"
+    machine.should_receive :remove_disks
+    machine.should_receive :destroy_vm
+    machine.should_receive :erase_data
+    
+    machine.uninstall
+    machine.status.should == :uninstalled
+  end
+  
 end

@@ -12,7 +12,7 @@ module BPMachine
     end
     
     def read_status
-      @status
+      @status.to_s.downcase.to_sym
     end
     
     private
@@ -59,12 +59,12 @@ module BPMachine
         end
         
         def applies_to?(state)
-          @pre_condition == state.to_sym
+          @pre_condition == state
         end
         
         private
         def must_be(state)
-          @pre_condition = state.to_sym
+          @pre_condition = state
         end
         
         def transition(name, options)
