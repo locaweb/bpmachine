@@ -3,7 +3,12 @@ module BPMachine
     ::ProcessSpecification = BPMachine::ProcessSpecification
     
     def self.included(klass)
-      klass.send(:attr_accessor, :status)
+      has_status_reader = klass.instance_method(:status) rescue false
+      klass.send(:attr_reader, :status) unless has_status_reader
+      
+      has_status_writer = klass.instance_method(:status=) rescue false
+      klass.send(:attr_writer, :status) unless has_status_writer
+      
       klass.extend ClassMethods
     end
     
@@ -59,6 +64,7 @@ module BPMachine
         end
         
         def applies_to?(state)
+          return true if @pre_condition.nil?
           @pre_condition == state
         end
         

@@ -62,4 +62,61 @@ describe "the DSL for business process" do
     machine.status.should == :uninstalled
   end
   
+  it "should support custom code to be run before process start"
+  
+  it "should accept any initial state if there isn't a must_be rule" do
+    class ProcessWithBeforeAction
+      include ProcessSpecification
+      
+      process :of => :anything do
+        transition :some_event, :from => :initial, :to => :final
+        transition :other_event, :from => :other, :to => :final
+      end
+    end
+    
+    process = ProcessWithBeforeAction.new
+    process.status = :initial
+    process.should_receive :some_event
+    process.anything
+    process.status.should == :final
+
+    second_process = ProcessWithBeforeAction.new
+    second_process.status = :other
+    second_process.should_receive :other_event
+    second_process.anything
+    second_process.status.should == :final
+  end
+  
+  it "shoud define status accessor by default" do
+    class WithoutAccessor
+      include ProcessSpecification
+    end
+    wa = WithoutAccessor.new
+    wa.should respond_to(:status)
+    wa.should respond_to(:status=)
+    wa.status = :created
+    wa.status.should == :created
+  end
+  
+  it "should not override status accessor when already defined" do
+    class WithReader
+      def status
+        :dont_override_please
+      end
+      include ProcessSpecification
+    end
+    reader = WithReader.new
+    reader.status.should == :dont_override_please
+    
+    class WithWriter
+      def status=(other)
+        :dont_override_please
+      end
+      include ProcessSpecification
+    end
+    writer = WithWriter.new
+    writer.status = :trying_to_change
+    writer.status.should be_nil
+  end
+  
 end
