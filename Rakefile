@@ -12,6 +12,7 @@ begin
     gem.authors = ["fabiokung"]
     gem.add_development_dependency "rspec"
     gem.add_development_dependency "cucumber"
+    gem.add_development_dependency "spork"
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
 rescue LoadError
