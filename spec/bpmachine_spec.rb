@@ -54,18 +54,52 @@ describe "the DSL for business process" do
   it "should be case insensitive with status" do
     machine = Machine.new
     machine.status = "DEACTIVATED"
-    machine.should_receive :remove_disks
-    machine.should_receive :destroy_vm
-    machine.should_receive :erase_data
+    machine.should_receive(:remove_disks).ordered
+    machine.should_receive(:destroy_vm).ordered
+    machine.should_receive(:erase_data).ordered
     
     machine.uninstall
     machine.status.should == :uninstalled
   end
   
-  it "should support custom code to be run before process start"
+  it "should support custom code to be run before process start" do
+    class ProcessWithBeforeAction
+      include ProcessSpecification
+      
+      process :of => :anything do
+        before :do_action
+        must_be :initial
+        transition :some_event, :from => :initial, :to => :final
+      end
+    end
+    
+    process = ProcessWithBeforeAction.new
+    process.status = :initial
+    process.should_receive(:do_action).ordered
+    process.should_receive(:some_event).ordered
+    process.anything
+  end
+  
+  it "should support custom code to be run after process start" do
+    class ProcessWithBeforeAction
+      include ProcessSpecification
+      
+      process :of => :anything do
+        after :do_action
+        must_be :initial
+        transition :some_event, :from => :initial, :to => :final
+      end
+    end
+    
+    process = ProcessWithBeforeAction.new
+    process.status = :initial
+    process.should_receive(:some_event).ordered
+    process.should_receive(:do_action).ordered
+    process.anything
+  end
   
   it "should accept any initial state if there isn't a must_be rule" do
-    class ProcessWithBeforeAction
+    class InitialStateNotRequired
       include ProcessSpecification
       
       process :of => :anything do
@@ -74,13 +108,13 @@ describe "the DSL for business process" do
       end
     end
     
-    process = ProcessWithBeforeAction.new
+    process = InitialStateNotRequired.new
     process.status = :initial
     process.should_receive :some_event
     process.anything
     process.status.should == :final
 
-    second_process = ProcessWithBeforeAction.new
+    second_process = InitialStateNotRequired.new
     second_process.status = :other
     second_process.should_receive :other_event
     second_process.anything

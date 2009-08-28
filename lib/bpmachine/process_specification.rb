@@ -38,9 +38,11 @@ module BPMachine
         class_eval do
           define_method(name) do
             state = read_status
+            self.send(specification.before_action) unless specification.before_action.nil?
             raise InvalidInitialState, 
               "Process #{name} requires object to have status #{specification.pre_condition}, but it is #{state}" unless specification.applies_to? state
             execute_transitions_from specification
+            self.send(specification.after_action) unless specification.after_action.nil?
           end
         end
       end
@@ -53,7 +55,7 @@ module BPMachine
       end
       
       class SpecificationContext
-        attr_reader :pre_condition
+        attr_reader :pre_condition, :before_action, :after_action
         
         def initialize
           @states = {}
@@ -69,8 +71,16 @@ module BPMachine
         end
         
         private
+        def before(action)
+          @before_action = action.to_sym
+        end
+        
+        def after(action)
+          @after_action = action.to_sym
+        end
+        
         def must_be(state)
-          @pre_condition = state
+          @pre_condition = state.to_sym
         end
         
         def transition(name, options)
