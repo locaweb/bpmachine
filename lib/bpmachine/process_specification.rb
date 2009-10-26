@@ -2,6 +2,14 @@ module BPMachine
   module ProcessSpecification
     ::ProcessSpecification = BPMachine::ProcessSpecification
     
+    def self.after_processes(&block)
+      after_process_actions << block
+    end
+    
+    def self.after_process_actions
+      @after_process_actions ||= []
+    end
+    
     def self.included(klass)
       has_status_reader = klass.instance_method(:status) rescue false
       klass.send(:attr_reader, :status) unless has_status_reader
@@ -33,6 +41,12 @@ module BPMachine
       end
     end
     
+    def execute_global_after_actions
+      ProcessSpecification.after_process_actions.each do |action|
+        action.call(self)
+      end
+    end
+    
     module ClassMethods
       def process(options = {}, &block)
         name = options[:of].to_sym
@@ -45,6 +59,7 @@ module BPMachine
               "Process #{name} requires object to have status #{specification.pre_condition}, but it is #{state}" unless specification.applies_to? state
             execute_transitions_from specification
             self.send(specification.after_action) unless specification.after_action.nil?
+            execute_global_after_actions
           end
         end
       end

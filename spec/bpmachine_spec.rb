@@ -175,4 +175,22 @@ describe "the DSL for business process" do
     writer.status.should be_nil
   end
   
+  it "should accept global 'after' blocks, passing the object processing the flow" do
+    machine = Machine.new
+    
+    called = false
+    ProcessSpecification.after_processes do |process_object|
+      called = true
+      process_object.should be(machine)
+    end
+
+    machine.status = :deactivated
+    machine.should_receive :remove_disks
+    machine.should_receive :destroy_vm
+    machine.should_receive :erase_data
+    machine.uninstall
+
+    called.should be_true
+  end
+  
 end
