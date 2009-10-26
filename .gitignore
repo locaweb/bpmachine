@@ -1,5 +1,6 @@
 *.sw?
 .DS_Store
+.specification
 coverage
 rdoc
 pkg
