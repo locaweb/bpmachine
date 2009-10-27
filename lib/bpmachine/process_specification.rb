@@ -11,17 +11,11 @@ module BPMachine
     end
     
     def self.included(klass)
-      has_status_reader = klass.instance_method(:status) rescue false
-      klass.send(:attr_reader, :status) unless has_status_reader
-      
-      has_status_writer = klass.instance_method(:status=) rescue false
-      klass.send(:attr_writer, :status) unless has_status_writer
-      
       klass.extend ClassMethods
     end
     
     def change_status(new_status)
-      @status = new_status
+      @status = new_status.to_s.upcase
       self.save
     end
     

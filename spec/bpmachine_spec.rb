@@ -5,6 +5,8 @@ describe "the DSL for business process" do
   class Machine
     include ProcessSpecification
     
+    attr_accessor :status
+    
     process :of => :uninstall do
       must_be :deactivated
       
@@ -28,39 +30,39 @@ describe "the DSL for business process" do
 
   it "should execute all transitions described in the process" do
     machine = Machine.new
-    machine.status = :deactivated
+    machine.status = "DEACTIVATED"
     machine.should_receive(:machine_exists?).and_return true
     machine.should_receive :remove_disks
     machine.should_receive :destroy_vm
     machine.should_receive :erase_data
     
     machine.uninstall
-    machine.status.should == :uninstalled
+    machine.status.should == "UNINSTALLED"
   end
   
   it "should not change state if condition fails" do
   	machine = Machine.new
-  	machine.status = :deactivated
+  	machine.status = "DEACTIVATED"
   	machine.should_receive(:machine_exists?).and_return false
   	
   	machine.uninstall
-  	machine.status = :deactivated
+  	machine.status = "DEACTIVATED"
   end
   
   it "should stop execution when a transition fail" do
     machine = Machine.new
-    machine.status = :deactivated
+    machine.status = "DEACTIVATED"
     machine.should_receive(:machine_exists?).and_return true
     machine.should_receive :remove_disks
     machine.should_receive(:destroy_vm).and_raise("execution fail")
     
     lambda { machine.uninstall }.should raise_error("execution fail")
-    machine.status.should == :diskless
+    machine.status.should == "DISKLESS"
   end
   
   it "should require the initial state" do
     machine = Machine.new
-    machine.status = :activated
+    machine.status = "ACTIVATED"
     
     lambda { machine.uninstall }.should raise_error(InvalidInitialState, 
         "Process uninstall requires object to have status deactivated, but it is activated")
@@ -75,12 +77,14 @@ describe "the DSL for business process" do
     machine.should_receive(:erase_data).ordered
     
     machine.uninstall
-    machine.status.should == :uninstalled
+    machine.status.should == "UNINSTALLED"
   end
   
   it "should support custom code to be run before process start" do
     class ProcessWithBeforeAction
       include ProcessSpecification
+      
+      attr_accessor :status
       
       process :of => :anything do
         before :do_action
@@ -93,7 +97,7 @@ describe "the DSL for business process" do
     end
     
     process = ProcessWithBeforeAction.new
-    process.status = :initial
+    process.status = "INITIAL"
     process.should_receive(:do_action).ordered
     process.should_receive(:some_event).ordered
     process.anything
@@ -111,7 +115,7 @@ describe "the DSL for business process" do
     end
     
     process = ProcessWithBeforeAction.new
-    process.status = :initial
+    process.status = "INITIAL"
     process.should_receive(:some_event).ordered
     process.should_receive(:do_action).ordered
     process.anything
@@ -120,6 +124,8 @@ describe "the DSL for business process" do
   it "should accept any initial state if there isn't a must_be rule" do
     class InitialStateNotRequired
       include ProcessSpecification
+      
+      attr_accessor :status
       
       process :of => :anything do
         transition :some_event, :from => :initial, :to => :final
@@ -131,50 +137,18 @@ describe "the DSL for business process" do
     end
     
     process = InitialStateNotRequired.new
-    process.status = :initial
+    process.status = "INITIAL"
     process.should_receive :some_event
     process.anything
-    process.status.should == :final
+    process.status.should == "FINAL"
 
     second_process = InitialStateNotRequired.new
-    second_process.status = :other
+    second_process.status = "OTHER"
     second_process.should_receive :other_event
     second_process.anything
-    second_process.status.should == :final
+    second_process.status.should == "FINAL"
   end
-  
-  it "shoud define status accessor by default" do
-    class WithoutAccessor
-      include ProcessSpecification
-    end
-    wa = WithoutAccessor.new
-    wa.should respond_to(:status)
-    wa.should respond_to(:status=)
-    wa.status = :created
-    wa.status.should == :created
-  end
-  
-  it "should not override status accessor when already defined" do
-    class WithReader
-      def status
-        :dont_override_please
-      end
-      include ProcessSpecification
-    end
-    reader = WithReader.new
-    reader.status.should == :dont_override_please
-    
-    class WithWriter
-      def status=(other)
-        :dont_override_please
-      end
-      include ProcessSpecification
-    end
-    writer = WithWriter.new
-    writer.status = :trying_to_change
-    writer.status.should be_nil
-  end
-  
+
   it "should accept global 'after' blocks, passing the object processing the flow" do
     machine = Machine.new
     
@@ -184,7 +158,8 @@ describe "the DSL for business process" do
       process_object.should be(machine)
     end
 
-    machine.status = :deactivated
+    machine.status = "DEACTIVATED"
+    machine.should_receive(:machine_exists?).and_return true
     machine.should_receive :remove_disks
     machine.should_receive :destroy_vm
     machine.should_receive :erase_data
