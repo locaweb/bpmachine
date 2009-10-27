@@ -14,6 +14,7 @@ module BPMachine
     
     def change_status(new_status)
       @status = new_status
+      self.save
     end
     
     def read_status
@@ -26,6 +27,7 @@ module BPMachine
         state = read_status
         transition = specification.transition_for state
         return state if transition.nil?
+        return state unless (transition[:if].nil? || self.send(transition[:if]))
         self.send transition[:method]
         change_status transition[:target]
       end
@@ -86,7 +88,8 @@ module BPMachine
         def transition(name, options)
           origin = options[:from].to_sym
           target = options[:to].to_sym
-          @states[origin] = { :target => target, :method => name }
+          condition = options[:if].to_sym unless options[:if].nil?
+          @states[origin] = { :target => target, :method => name, :if => condition }
         end
       end
     end

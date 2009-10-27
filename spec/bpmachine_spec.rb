@@ -10,7 +10,8 @@ describe "the DSL for business process" do
       
       transition :remove_disks, 
         :from => :deactivated, 
-        :to => :diskless
+        :to => :diskless,
+     		:if => :machine_exists?
       
       transition :destroy_vm, 
         :from => :diskless, 
@@ -20,11 +21,15 @@ describe "the DSL for business process" do
         :from => :vm_destroyed, 
         :to => :uninstalled
     end
+    
+    def save
+    end
   end
 
   it "should execute all transitions described in the process" do
     machine = Machine.new
     machine.status = :deactivated
+    machine.should_receive(:machine_exists?).and_return true
     machine.should_receive :remove_disks
     machine.should_receive :destroy_vm
     machine.should_receive :erase_data
@@ -33,9 +38,19 @@ describe "the DSL for business process" do
     machine.status.should == :uninstalled
   end
   
+  it "should not change state if condition fails" do
+  	machine = Machine.new
+  	machine.status = :deactivated
+  	machine.should_receive(:machine_exists?).and_return false
+  	
+  	machine.uninstall
+  	machine.status = :deactivated
+  end
+  
   it "should stop execution when a transition fail" do
     machine = Machine.new
     machine.status = :deactivated
+    machine.should_receive(:machine_exists?).and_return true
     machine.should_receive :remove_disks
     machine.should_receive(:destroy_vm).and_raise("execution fail")
     
@@ -54,6 +69,7 @@ describe "the DSL for business process" do
   it "should be case insensitive with status" do
     machine = Machine.new
     machine.status = "DEACTIVATED"
+    machine.should_receive(:machine_exists?).ordered.and_return true
     machine.should_receive(:remove_disks).ordered
     machine.should_receive(:destroy_vm).ordered
     machine.should_receive(:erase_data).ordered
@@ -71,6 +87,9 @@ describe "the DSL for business process" do
         must_be :initial
         transition :some_event, :from => :initial, :to => :final
       end
+      
+      def save
+    	end
     end
     
     process = ProcessWithBeforeAction.new
@@ -106,6 +125,9 @@ describe "the DSL for business process" do
         transition :some_event, :from => :initial, :to => :final
         transition :other_event, :from => :other, :to => :final
       end
+      
+      def save
+    	end
     end
     
     process = InitialStateNotRequired.new
