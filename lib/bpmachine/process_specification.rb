@@ -15,12 +15,12 @@ module BPMachine
     end
     
     def change_status(new_status)
-      @status = new_status.to_s.upcase
+      @status = new_status
       self.save
     end
     
     def read_status
-      @status.to_s.downcase.to_sym
+      @status
     end
     
     private
