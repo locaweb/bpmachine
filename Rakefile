@@ -10,6 +10,7 @@ begin
     gem.email = "fabio.kung@gmail.com"
     gem.homepage = "http://github.com/fabiokung/bpmachine"
     gem.authors = ["fabiokung"]
+    gem.add_dependency "activesupport"
     gem.add_development_dependency "rspec"
     gem.add_development_dependency "cucumber"
     gem.add_development_dependency "spork"

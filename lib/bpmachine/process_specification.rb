@@ -44,6 +44,8 @@ module BPMachine
     module ClassMethods
       def process(options = {}, &block)
         name = options[:of].to_sym
+        load_step_definitions_for(name)
+        
         specification = transitions_from block
         class_eval do
           define_method(name) do
@@ -59,6 +61,21 @@ module BPMachine
       end
       
       private
+      def load_step_definitions_for(process_name)
+        begin
+          require "#{process_name}_steps"
+          begin
+            module_name = "#{process_name.to_s.camelize}Steps"
+            steps_module = const_get(module_name)
+            include(steps_module)
+          rescue NameError
+            puts "WARNING: Error while trying to load the #{module_name} module, because it doesn't exist."
+          end
+        rescue LoadError
+          nil
+        end
+      end
+      
       def transitions_from(block)
         specification = SpecificationContext.new
         specification.instance_eval(&block)

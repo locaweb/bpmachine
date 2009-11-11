@@ -27,6 +27,41 @@ describe "the DSL for business process" do
     def save
     end
   end
+  
+  describe "automatic module loading" do
+    it "should require a file named <process_name>_steps.rb if exists" do
+      Object.should be_const_defined(:UninstallSteps)
+    end
+    
+    it "should include the steps definition module named <Process>Steps in the process declaring class" do
+      Machine.should include(UninstallSteps)
+    end
+    
+    it "should ignore step definition files that doesn't exist" do
+      declaration = lambda do
+        class ClassWithProcess
+          include ProcessSpecification
+          process :of => :anything do
+            transition :some_event, :from => :initial, :to => :final
+          end
+        end
+      end
+      declaration.should_not raise_error
+    end
+    
+    it "should ignore step definition files that doesn't exist" do
+      declaration = lambda do
+        class ClassWithWrongProcess
+          include ProcessSpecification
+          process :of => :wrong do
+            transition :some_event, :from => :initial, :to => :final
+          end
+        end
+      end
+      declaration.should_not raise_error
+    end
+    
+  end
 
   it "should execute all transitions described in the process" do
     machine = Machine.new
