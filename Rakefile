@@ -1,9 +1,11 @@
 require 'rubygems'
 require 'rake'
+require File.dirname(__FILE__) + "/lib/bpmachine/version"
 
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
+    gem.version = BPMachine::Version::STRING
     gem.name = "bpmachine"
     gem.summary = %Q{Business Process execution engine, with resume support on failures.}
     gem.description = %Q{Includes a DSL for business process specification. The process state is persistent, which allows it to be be resumed if an error occurs.}
