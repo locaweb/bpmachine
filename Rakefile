@@ -32,7 +32,8 @@ end
 Spec::Rake::SpecTask.new(:rcov) do |spec|
   spec.libs << 'lib' << 'spec'
   spec.spec_opts = ["-O", "spec/spec.opts"]
-  spec.pattern = 'spec/**/*_spec.rb'
+  spec.spec_files = FileList['spec/**/*_spec.rb']
+  spec.rcov_opts << %w[--exclude spec,activesupport,gems/* --include-file lib/bpmachine.rb,lib/bpmachine/*]
   spec.rcov = true
 end
 
