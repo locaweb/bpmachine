@@ -100,7 +100,17 @@ describe "the DSL for business process" do
     machine.status = "ACTIVATED"
     
     lambda { machine.uninstall }.should raise_error(InvalidInitialState, 
-        "Process uninstall requires object to have status deactivated, but it is activated")
+        "Process uninstall requires object to have initial status deactivated or any transitional status, but it is activated")
+  end
+  
+  it "should allow the process to resume from a transitional state" do
+    machine = Machine.new
+    machine.status = "DISKLESS"
+    machine.should_not_receive(:remove_disks)
+    machine.should_receive(:destroy_vm).ordered
+    machine.should_receive(:erase_data).ordered
+    machine.uninstall
+    machine.status.should == "UNINSTALLED"
   end
   
   it "should be case insensitive with status" do

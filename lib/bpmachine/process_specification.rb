@@ -52,7 +52,7 @@ module BPMachine
             state = read_status
             self.send(specification.before_action) unless specification.before_action.nil?
             raise InvalidInitialState, 
-              "Process #{name} requires object to have status #{specification.pre_condition}, but it is #{state}" unless specification.applies_to? state
+              "Process #{name} requires object to have initial status #{specification.pre_condition} or any transitional status, but it is #{state}" unless specification.applies_to? state
             execute_transitions_from specification
             self.send(specification.after_action) unless specification.after_action.nil?
             execute_global_after_actions
@@ -95,7 +95,11 @@ module BPMachine
         
         def applies_to?(state)
           return true if @pre_condition.nil?
-          @pre_condition == state
+          @pre_condition == state || has_state?(state)
+        end
+        
+        def has_state?(state)
+          not @states[state].nil?
         end
         
         private

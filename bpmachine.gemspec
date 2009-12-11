@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["fabiokung"]
-  s.date = %q{2009-11-26}
+  s.date = %q{2009-12-11}
   s.description = %q{Includes a DSL for business process specification. The process state is persistent, which allows it to be be resumed if an error occurs.}
   s.email = %q{fabio.kung@gmail.com}
   s.extra_rdoc_files = [
