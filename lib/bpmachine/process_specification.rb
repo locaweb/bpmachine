@@ -16,7 +16,7 @@ module BPMachine
     
     def change_status(new_status)
       self.status = new_status.to_s.upcase
-      self.save
+      self.save!
     end
     
     def read_status
