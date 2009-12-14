@@ -24,7 +24,7 @@ describe "the DSL for business process" do
         :to => :uninstalled
     end
     
-    def save
+    def save!
     end
   end
   
@@ -137,7 +137,7 @@ describe "the DSL for business process" do
         transition :some_event, :from => :initial, :to => :final
       end
       
-      def save
+      def save!
     	end
     end
     
@@ -177,7 +177,7 @@ describe "the DSL for business process" do
         transition :other_event, :from => :other, :to => :final
       end
       
-      def save
+      def save!
     	end
     end
     
@@ -211,6 +211,29 @@ describe "the DSL for business process" do
     machine.uninstall
 
     called.should be_true
+  end
+  
+  it "should raise error when model can't be saved" do
+    class TheProcess
+      include ProcessSpecification
+      
+      attr_accessor :status
+      
+      process :of => :anything do
+        transition :some_event, :from => :initial, :to => :final
+        transition :other_event, :from => :other, :to => :final
+      end
+      
+      def save!
+        raise "Big Error!"
+    	end
+    end
+    
+    process = TheProcess.new
+    process.status = "INITIAL"
+    process.stub!(:some_event)
+    process.stub!(:other_event)
+    lambda { process.anything }.should raise_error("Big Error!")
   end
   
 end
