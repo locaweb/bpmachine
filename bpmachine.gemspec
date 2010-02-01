@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{bpmachine}
-  s.version = "0.0.1"
+  s.version = "0.0.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["fabiokung"]
-  s.date = %q{2009-12-11}
+  s.date = %q{2010-02-01}
   s.description = %q{Includes a DSL for business process specification. The process state is persistent, which allows it to be be resumed if an error occurs.}
   s.email = %q{fabio.kung@gmail.com}
   s.extra_rdoc_files = [
@@ -41,10 +41,10 @@ Gem::Specification.new do |s|
   s.rubygems_version = %q{1.3.5}
   s.summary = %q{Business Process execution engine, with resume support on failures.}
   s.test_files = [
-    "spec/bpmachine_spec.rb",
-     "spec/spec_helper.rb",
+    "spec/wrong_steps.rb",
+     "spec/bpmachine_spec.rb",
      "spec/uninstall_steps.rb",
-     "spec/wrong_steps.rb"
+     "spec/spec_helper.rb"
   ]
 
   if s.respond_to? :specification_version then

@@ -15,12 +15,12 @@ module BPMachine
     end
     
     def change_status(new_status)
-      self.status = new_status.to_s.upcase
+      self.status = new_status
       self.save!
     end
     
     def read_status
-      self.status.downcase.to_sym
+      status.is_a?(Symbol) ? status : status.downcase.to_sym
     end
     
     private
@@ -51,8 +51,7 @@ module BPMachine
           define_method(name) do
             state = read_status
             self.send(specification.before_action) unless specification.before_action.nil?
-            raise InvalidInitialState, 
-              "Process #{name} requires object to have initial status #{specification.pre_condition} or any transitional status, but it is #{state}" unless specification.applies_to? state
+            raise InvalidInitialState.new(name, specification.pre_condition, state) unless specification.applies_to? state
             execute_transitions_from specification
             self.send(specification.after_action) unless specification.after_action.nil?
             execute_global_after_actions

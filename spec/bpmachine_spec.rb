@@ -65,39 +65,39 @@ describe "the DSL for business process" do
 
   it "should execute all transitions described in the process" do
     machine = Machine.new
-    machine.status = "DEACTIVATED"
+    machine.status = :deactivated
     machine.should_receive(:machine_exists?).and_return true
     machine.should_receive :remove_disks
     machine.should_receive :destroy_vm
     machine.should_receive :erase_data
     
     machine.uninstall
-    machine.status.should == "UNINSTALLED"
+    machine.status.should == :uninstalled
   end
   
   it "should not change state if condition fails" do
   	machine = Machine.new
-  	machine.status = "DEACTIVATED"
+  	machine.status = :deactivated
   	machine.should_receive(:machine_exists?).and_return false
   	
   	machine.uninstall
-  	machine.status = "DEACTIVATED"
+  	machine.status = :deactivated
   end
   
   it "should stop execution when a transition fail" do
     machine = Machine.new
-    machine.status = "DEACTIVATED"
+    machine.status = :deactivated
     machine.should_receive(:machine_exists?).and_return true
     machine.should_receive :remove_disks
     machine.should_receive(:destroy_vm).and_raise("execution fail")
     
     lambda { machine.uninstall }.should raise_error("execution fail")
-    machine.status.should == "DISKLESS"
+    machine.status.should == :diskless
   end
   
   it "should require the initial state" do
     machine = Machine.new
-    machine.status = "ACTIVATED"
+    machine.status = :activated
     
     lambda { machine.uninstall }.should raise_error(InvalidInitialState, 
         "Process uninstall requires object to have initial status deactivated or any transitional status, but it is activated")
@@ -105,24 +105,24 @@ describe "the DSL for business process" do
   
   it "should allow the process to resume from a transitional state" do
     machine = Machine.new
-    machine.status = "DISKLESS"
+    machine.status = :diskless
     machine.should_not_receive(:remove_disks)
     machine.should_receive(:destroy_vm).ordered
     machine.should_receive(:erase_data).ordered
     machine.uninstall
-    machine.status.should == "UNINSTALLED"
+    machine.status.should == :uninstalled
   end
   
   it "should be case insensitive with status" do
     machine = Machine.new
-    machine.status = "DEACTIVATED"
+    machine.status = :deactivated
     machine.should_receive(:machine_exists?).ordered.and_return true
     machine.should_receive(:remove_disks).ordered
     machine.should_receive(:destroy_vm).ordered
     machine.should_receive(:erase_data).ordered
     
     machine.uninstall
-    machine.status.should == "UNINSTALLED"
+    machine.status.should == :uninstalled
   end
   
   it "should support custom code to be run before process start" do
@@ -142,7 +142,7 @@ describe "the DSL for business process" do
     end
     
     process = ProcessWithBeforeAction.new
-    process.status = "INITIAL"
+    process.status = :initial
     process.should_receive(:do_action).ordered
     process.should_receive(:some_event).ordered
     process.anything
@@ -160,7 +160,7 @@ describe "the DSL for business process" do
     end
     
     process = ProcessWithBeforeAction.new
-    process.status = "INITIAL"
+    process.status = :initial
     process.should_receive(:some_event).ordered
     process.should_receive(:do_action).ordered
     process.anything
@@ -182,16 +182,16 @@ describe "the DSL for business process" do
     end
     
     process = InitialStateNotRequired.new
-    process.status = "INITIAL"
+    process.status = :initial
     process.should_receive :some_event
     process.anything
-    process.status.should == "FINAL"
+    process.status.should == :final
 
     second_process = InitialStateNotRequired.new
-    second_process.status = "OTHER"
+    second_process.status = :other
     second_process.should_receive :other_event
     second_process.anything
-    second_process.status.should == "FINAL"
+    second_process.status.should == :final
   end
 
   it "should accept global 'after' blocks, passing the object processing the flow" do
@@ -203,7 +203,7 @@ describe "the DSL for business process" do
       process_object.should be(machine)
     end
 
-    machine.status = "DEACTIVATED"
+    machine.status = :deactivated
     machine.should_receive(:machine_exists?).and_return true
     machine.should_receive :remove_disks
     machine.should_receive :destroy_vm
@@ -230,7 +230,7 @@ describe "the DSL for business process" do
     end
     
     process = TheProcess.new
-    process.status = "INITIAL"
+    process.status = :initial
     process.stub!(:some_event)
     process.stub!(:other_event)
     lambda { process.anything }.should raise_error("Big Error!")
