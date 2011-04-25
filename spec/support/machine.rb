@@ -20,6 +20,15 @@ class Machine
       :to => :uninstalled
   end
 
+  process :of => :install do
+    must_be :initial_status
+    accept_state [:activated, :installed], :as => :initial_status
+
+    transition :create_disks,
+      :from => :initial_status,
+      :to => :diskless
+  end
+
   def save!
   end
 end

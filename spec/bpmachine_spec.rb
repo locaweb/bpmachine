@@ -77,6 +77,21 @@ describe "the DSL for business process" do
         "Process uninstall requires object to have initial status deactivated or any transitional status, but it is activated")
   end
 
+  it "should accept other states as determined state" do
+    machine = Machine.new
+    machine.status = :activated
+
+    machine.should_receive(:create_disks)
+    machine.install
+  end
+
+  it "should not accept unexpected stated" do
+    machine = Machine.new
+    machine.status = :deactivated
+    lambda { machine.install }.should raise_error(InvalidInitialState,
+        "Process install requires object to have initial status initial_status or any transitional status, but it is deactivated")
+  end
+
   it "should allow the process to resume from a transitional state" do
     machine = Machine.new
     machine.status = :diskless

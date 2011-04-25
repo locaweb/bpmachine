@@ -84,19 +84,24 @@ module BPMachine
 
         def initialize
           @states = {}
+          @accepted_states = {}
         end
 
         def transition_for(state)
-          @states[state]
+          @states[state] || @states[@accepted_states[state]]
         end
 
         def applies_to?(state)
           return true if @pre_condition.nil?
-          @pre_condition == state || has_state?(state)
+          @pre_condition == state || has_state?(state) || accept_state?(state)
         end
 
         def has_state?(state)
           not @states[state].nil?
+        end
+
+        def accept_state?(state)
+          not @accepted_states[state].nil?
         end
 
         private
@@ -110,6 +115,10 @@ module BPMachine
 
         def must_be(state)
           @pre_condition = state.to_sym
+        end
+
+        def accept_state(states, opts)
+          [states].flatten.each {|state| @accepted_states[state] = opts[:as]}
         end
 
         def transition(name, options)
