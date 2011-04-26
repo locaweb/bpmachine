@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.description = %Q{Includes a DSL for business process specification. The process state is persistent, which allows it to be be resumed if an error occurs.}
   s.summary     = s.description
 
-  s.files         = Dir["./**/*"].reject {|file| file =~ /\.(git|gem)/}
+  s.files         = Dir["./**/*"].reject {|file| file =~ /\.git|pkg/}
   s.require_paths = ["lib"]
 
   s.add_dependency "i18n", "~> 0.5.0"
