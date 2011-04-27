@@ -29,6 +29,31 @@ class Machine
       :to => :diskless
   end
 
+  process :of => :subprocess do
+    must_be :ready_for_subprocess
+    
+    transition :step1,
+      :from => :ready_for_subprocess,
+      :to => :step1_done
+
+    transition :step2,
+      :from => :step1_done,
+      :to => :subprocess_done
+  end
+
+  process :of => :execute_with_subprocess do
+    must_be :ready_for_subprocess
+    accept_state :step1_done, :as => :ready_for_subprocess
+    
+    transition :subprocess,
+      :from => :ready_for_subprocess,
+      :to => :subprocess_done
+
+    transition :step3,
+      :from => :subprocess_done,
+      :to => :all_done
+  end
+
   def save!
   end
 end

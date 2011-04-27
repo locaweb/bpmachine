@@ -92,6 +92,26 @@ describe "the DSL for business process" do
         "Process install requires object to have initial status initial_status or any transitional status, but it is deactivated")
   end
 
+  it "should execute subprocess" do
+    machine = Machine.new
+    machine.status = :ready_for_subprocess
+    machine.should_receive(:step1).ordered
+    machine.should_receive(:step2).ordered
+    machine.should_receive(:step3).ordered
+    machine.execute_with_subprocess
+    machine.status.should == :all_done
+  end
+
+  it "should resume a process stopped in a subprocess" do
+    machine = Machine.new
+    machine.status = :step1_done
+    machine.should_not_receive(:step1)
+    machine.should_receive(:step2).ordered
+    machine.should_receive(:step3).ordered
+    machine.execute_with_subprocess
+    machine.status.should == :all_done
+  end
+
   it "should allow the process to resume from a transitional state" do
     machine = Machine.new
     machine.status = :diskless
