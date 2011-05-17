@@ -6,7 +6,7 @@ PATH
       i18n (~> 0.5.0)
 
 GEM
-  remote: http://rubygems.org/
+  remote: http://gems.locaweb.com.br/
   specs:
     activesupport (3.0.7)
     archive-tar-minitar (0.5.2)
