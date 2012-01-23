@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
 
   s.add_dependency "i18n", "~> 0.6.0"
-  s.add_dependency "activesupport", "~> 3.1.0"
+  s.add_dependency "activesupport", "~> 3.2.0"
   s.add_development_dependency "rspec"
   s.add_development_dependency "cucumber"
   s.add_development_dependency "ruby-debug19"
