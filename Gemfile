@@ -1,2 +1,2 @@
-source "http://gems.locaweb.com.br"
+source :rubygems
 gemspec

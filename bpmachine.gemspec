@@ -6,9 +6,9 @@ Gem::Specification.new do |s|
   s.name        = "bpmachine"
   s.version     = BPMachine::Version::STRING
   s.platform    = Gem::Platform::RUBY
-  s.authors     = ["fabiokung"]
-  s.email       = ["fabio.kung@gmail.com"]
-  s.homepage    = "http://github.com/fabiokung/bpmachine"
+  s.authors     = ["Cloud Team"]
+  s.email       = ["willian.molinari@locaweb.com.br"]
+  s.homepage    = "http://github.com/locaweb/bpmachine"
   s.description = %Q{Includes a DSL for business process specification. The process state is persistent, which allows it to be be resumed if an error occurs.}
   s.summary     = s.description
 
@@ -18,6 +18,4 @@ Gem::Specification.new do |s|
   s.add_dependency "i18n", "~> 0.6.0"
   s.add_dependency "activesupport", "~> 3.2.0"
   s.add_development_dependency "rspec"
-  s.add_development_dependency "cucumber"
-  s.add_development_dependency "ruby-debug19"
 end
