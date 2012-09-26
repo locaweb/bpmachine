@@ -1,22 +1,18 @@
-= bpmachine
+bpmachine
+=========
 
-Description goes here.
+bpmachine is a ruby gem to descript process specifications.
+This gem was made to deal with a big pipeline, acting as a state machine
+for the application to control each status of whole process.
 
-== Note on Patches/Pull Requests
 
-* Fork the project.
-* Make your feature addition or bug fix.
-* Add tests for it. This is important so I don't break it in a
-  future version unintentionally.
-* Commit, do not mess with rakefile, version, or history.
-  (if you want to have your own version, that is fine but
-   bump version in a commit by itself I can ignore when I pull)
-* Send me a pull request. Bonus points for topic branches.
-
-== Contributors
+Contributors
+------------
 
 * Fabio Kung
 
-== Copyright
+
+Copyright
+---------
 
 Copyright (c) 2012 Locaweb. See LICENSE for details.
