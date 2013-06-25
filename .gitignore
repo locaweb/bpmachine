@@ -6,3 +6,4 @@ rdoc
 pkg
 *~
 .gitignore
+Gemfile.lock
