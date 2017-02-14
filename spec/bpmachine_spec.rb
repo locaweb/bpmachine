@@ -219,7 +219,7 @@ describe "the DSL for business process" do
     machine.should_receive :erase_data
     machine.uninstall
 
-    called.should be_true
+    called.should be_truthy
   end
 
   it "should raise error when model can't be saved" do
@@ -240,8 +240,8 @@ describe "the DSL for business process" do
 
     process = TheProcess.new
     process.status = :initial
-    process.stub!(:some_event)
-    process.stub!(:other_event)
+    allow(process).to receive(:some_event)
+    allow(process).to receive(:other_event)
     lambda { process.anything }.should raise_error("Big Error!")
   end
 
