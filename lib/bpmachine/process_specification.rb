@@ -20,9 +20,13 @@ module BPMachine
         transition = specification.transition_for state
         return state if transition.nil?
         return state unless (transition[:if].nil? || self.send(transition[:if]))
-        self.send transition[:method]
+        call_around(transition) { self.send transition[:method] }
         change_status transition[:target]
       end
+    end
+
+    def call_around(transition, &block)
+      self.class.around_block.call(transition, self, block)
     end
 
     def execute_global_after_actions
@@ -55,6 +59,14 @@ module BPMachine
 
       def after_process_actions
         @after_process_actions ||= []
+      end
+
+      def around(&block)
+        @around_block = block
+      end
+
+      def around_block
+        @around_block ||= -> (_transition, _instance, block) { block.call }
       end
 
       private
