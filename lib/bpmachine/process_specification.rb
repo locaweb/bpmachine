@@ -1,13 +1,5 @@
 module BPMachine
   module ProcessSpecification
-    def self.after_processes(&block)
-      after_process_actions << block
-    end
-
-    def self.after_process_actions
-      @after_process_actions ||= []
-    end
-
     def self.included(klass)
       klass.extend ClassMethods
     end
@@ -34,8 +26,8 @@ module BPMachine
     end
 
     def execute_global_after_actions
-      ProcessSpecification.after_process_actions.each do |action|
-        action.call(self)
+      self.class.after_process_actions.each do |action|
+        action.call self
       end
     end
 
@@ -55,6 +47,14 @@ module BPMachine
             execute_global_after_actions
           end
         end
+      end
+
+      def after_processes(&block)
+        after_process_actions << block
+      end
+
+      def after_process_actions
+        @after_process_actions ||= []
       end
 
       private

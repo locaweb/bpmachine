@@ -204,22 +204,24 @@ describe "the DSL for business process" do
   end
 
   it "should accept global 'after' blocks, passing the object processing the flow" do
-    machine = Machine.new
-
-    called = false
-    ProcessSpecification.after_processes do |process_object|
-      called = true
-      expect(process_object).to be(machine)
-    end
+    machine = Class.new(Machine) do
+      attr_accessor :process_object
+      after_processes do |process_object|
+        process_object.block_called
+        process_object.process_object = process_object
+      end
+    end.new
 
     machine.status = :deactivated
     expect(machine).to receive(:machine_exists?).and_return true
     expect(machine).to receive(:remove_disks)
     expect(machine).to receive(:destroy_vm)
     expect(machine).to receive(:erase_data)
+    expect(machine).to receive(:block_called)
+
     machine.uninstall
 
-    expect(called).to be_truthy
+    expect(machine.process_object).to be(machine)
   end
 
   it "should raise error when model can't be saved" do
