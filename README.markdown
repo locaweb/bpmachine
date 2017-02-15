@@ -31,6 +31,27 @@ The gem will look for a `AnythingSteps` in the `app/steps` directory
 and run the `some_event` method, changing the object status of
 `MyClass` from `:initial` to `:final`.
 
+### Add callbacks
+
+- `around`: called around each transition
+- `after_processes`: called at the end of the workflow
+
+```ruby
+class MyClass
+  include ProcessSpecification
+
+  after_processes do |instance|
+    puts 'All is done'
+  end
+
+  around do |transition, instance, block|
+    logger.tagged transition[:method] do
+      logger.info "Going from #{instance.status} to #{transition[:target]}"
+      block.call
+    end
+  end
+end
+```
 
 Contributors
 ------------
