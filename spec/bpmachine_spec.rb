@@ -204,22 +204,50 @@ describe "the DSL for business process" do
   end
 
   it "should accept global 'after' blocks, passing the object processing the flow" do
-    machine = Machine.new
-
-    called = false
-    ProcessSpecification.after_processes do |process_object|
-      called = true
-      expect(process_object).to be(machine)
-    end
+    machine = Class.new(Machine) do
+      attr_accessor :process_object
+      after_processes do |process_object|
+        process_object.block_called
+        process_object.process_object = process_object
+      end
+    end.new
 
     machine.status = :deactivated
     expect(machine).to receive(:machine_exists?).and_return true
     expect(machine).to receive(:remove_disks)
     expect(machine).to receive(:destroy_vm)
     expect(machine).to receive(:erase_data)
+    expect(machine).to receive(:block_called)
+
     machine.uninstall
 
-    expect(called).to be_truthy
+    expect(machine.process_object).to be(machine)
+  end
+
+  describe "should accept 'around' blocks" do
+    let(:machine) do
+      c = Class.new(Machine) do
+        around do |_transition, instance, block|
+          instance.begin_around
+          block.call
+          instance.end_around
+        end
+      end
+
+      c.new.tap { |m| m.status = :deactivated }
+    end
+
+    it 'runs the workflow with the around block' do
+      expect(machine).to receive(:machine_exists?).and_return true
+      expect(machine).to receive(:remove_disks)
+      expect(machine).to receive(:destroy_vm)
+      expect(machine).to receive(:erase_data)
+
+      expect(machine).to receive(:begin_around).exactly(3).times
+      expect(machine).to receive(:end_around).exactly(3).times
+
+      machine.uninstall
+    end
   end
 
   it "should raise error when model can't be saved" do
