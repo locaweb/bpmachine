@@ -157,6 +157,35 @@ describe "the DSL for business process" do
     process.anything
   end
 
+  it "should support modules" do
+    class ClassWithModule
+      module SomeModule
+        include ProcessSpecification
+
+        process :of => :anything do
+          before :do_action
+          must_be :initial
+          transition :some_event, :from => :initial, :to => :final
+        end
+      end
+    end
+
+    class ClassWithModule
+      include ClassWithModule::SomeModule
+
+      attr_accessor :status
+
+      def save!
+      end
+    end
+
+    process = ClassWithModule.new
+    process.status = :initial
+    expect(process).to receive(:do_action).ordered
+    expect(process).to receive(:some_event).ordered
+    process.anything
+  end
+
   it "should support custom code to be run after process start" do
     class ProcessWithBeforeAction
       include ProcessSpecification

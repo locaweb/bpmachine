@@ -2,6 +2,12 @@ module BPMachine
   module ProcessSpecification
     def self.included(klass)
       klass.extend ClassMethods
+
+      klass.class_eval do
+        def self.included(klass)
+          klass.instance_variable_set :@bpm_module, self
+        end
+      end
     end
 
     def change_status(new_status)
@@ -25,12 +31,16 @@ module BPMachine
       end
     end
 
+    def bpm_module
+      self.class.instance_variable_get(:@bpm_module) || self.class
+    end
+
     def call_around(transition, &block)
-      self.class.around_block.call(transition, self, block)
+      bpm_module.around_block.call(transition, self, block)
     end
 
     def execute_global_after_actions
-      self.class.after_process_actions.each do |action|
+      bpm_module.after_process_actions.each do |action|
         action.call self
       end
     end
