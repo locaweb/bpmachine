@@ -1,15 +1,13 @@
 module BPMachine
   module ProcessSpecification
-    def self.after_processes(&block)
-      after_process_actions << block
-    end
-
-    def self.after_process_actions
-      @after_process_actions ||= []
-    end
-
     def self.included(klass)
       klass.extend ClassMethods
+
+      klass.class_eval do
+        def self.included(klass)
+          klass.instance_variable_set :@bpm_module, self
+        end
+      end
     end
 
     def change_status(new_status)
@@ -28,14 +26,22 @@ module BPMachine
         transition = specification.transition_for state
         return state if transition.nil?
         return state unless (transition[:if].nil? || self.send(transition[:if]))
-        self.send transition[:method]
+        call_around(transition) { self.send transition[:method] }
         change_status transition[:target]
       end
     end
 
+    def bpm_module
+      self.class.instance_variable_get(:@bpm_module) || self.class
+    end
+
+    def call_around(transition, &block)
+      bpm_module.around_block.call(transition, self, block)
+    end
+
     def execute_global_after_actions
-      ProcessSpecification.after_process_actions.each do |action|
-        action.call(self)
+      bpm_module.after_process_actions.each do |action|
+        action.call self
       end
     end
 
@@ -55,6 +61,22 @@ module BPMachine
             execute_global_after_actions
           end
         end
+      end
+
+      def after_processes(&block)
+        after_process_actions << block
+      end
+
+      def after_process_actions
+        @after_process_actions ||= []
+      end
+
+      def around(&block)
+        @around_block = block
+      end
+
+      def around_block
+        @around_block ||= -> (_transition, _instance, block) { block.call }
       end
 
       private
